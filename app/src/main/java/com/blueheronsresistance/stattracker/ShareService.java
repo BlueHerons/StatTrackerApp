@@ -94,8 +94,8 @@ public class ShareService extends IntentService {
                     InputStreamReader connIn = new InputStreamReader(conn.getInputStream());
 
                     char[] cBuf = new char[BUF_SIZE]; // size of InputStreamReader buffer
-                    while(connIn.read(cBuf, 0, BUF_SIZE) > 0) {
-                        json = new JSONObject(new String(cBuf));
+                    while((n = connIn.read(cBuf, 0, BUF_SIZE)) > 0) {
+                        json = new JSONObject(new String(cBuf, 0, n));
                         if(!json.has("status") && !json.has("stats")) {
                             Log.e(TAG, "No status JSON prop");
                             if(!json.has("error")) {
