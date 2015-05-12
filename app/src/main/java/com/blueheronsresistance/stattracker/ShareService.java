@@ -136,8 +136,10 @@ public class ShareService extends IntentService {
                         Log.d(TAG, json.optString("status"));
                         // TODO notification with status message
                     } else if (json.has("error")) {
+                        //TODO error message notification
                         Log.e(TAG, "An error occurred while processing your screenshot: " + json.optString("error") + ".  Please try again or submit your stats manually.");
                     } else if(!json.has("stats")) {
+                        //TODO error message notification
                         Log.e(TAG, "An unknown error occurred while processing your screenshot: " + json.toString());
                     }
                 } else {
@@ -154,6 +156,7 @@ public class ShareService extends IntentService {
                 if ((stats = json.optJSONObject("stats")) != null) {
                     // TODO notification with status message
                     Log.d(TAG, "Your screenshot has been processed, AP: " + stats.optInt("ap"));
+                    Log.d(TAG, stats.toString());
                     submitStats(stats);
                 } else if (json.has("error")) {
                     //TODO error message notification

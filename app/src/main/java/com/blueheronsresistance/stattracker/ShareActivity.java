@@ -91,8 +91,8 @@ public class ShareActivity extends Activity {
                     Log.d(TAG, "onStart selecting account");
                     pickAccount();
                 } catch(FileNotFoundException e) {
-                    Log.d(TAG, "File not found: " + e.toString());
-                    //TODO error message pop up saying no image not found
+                    Log.e(TAG, "File not found: " + e.toString());
+                    //TODO error message pop up saying image not found
                     finish();
                 }
             } else {
