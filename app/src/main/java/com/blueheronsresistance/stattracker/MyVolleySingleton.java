@@ -34,8 +34,8 @@ public class MyVolleySingleton {
             // Activity or BroadcastReceiver if someone passes one in.
             //CookieManager manager = new CookieManager();
             //CookieHandler.setDefault(manager);
-            //mRequestQueue = Volley.newRequestQueue(mCtx.getApplicationContext());
-            mRequestQueue = Volley.newRequestQueue(mCtx.getApplicationContext(), new HurlStack(null, pinnedSSLSocketFactory.getSocketFactory(mCtx)));
+            mRequestQueue = Volley.newRequestQueue(mCtx.getApplicationContext());
+            //mRequestQueue = Volley.newRequestQueue(mCtx.getApplicationContext(), new HurlStack(null, pinnedSSLSocketFactory.getSocketFactory(mCtx)));
         }
         return mRequestQueue;
     }
