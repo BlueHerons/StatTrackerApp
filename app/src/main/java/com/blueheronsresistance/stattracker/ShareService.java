@@ -93,16 +93,11 @@ public class ShareService extends IntentService {
                     Log.d(TAG, "Image upload 200 response");
                     InputStreamReader connIn = new InputStreamReader(conn.getInputStream());
 
+                    StringBuilder response = new StringBuilder();
                     char[] cBuf = new char[BUF_SIZE]; // size of InputStreamReader buffer
                     while((n = connIn.read(cBuf, 0, BUF_SIZE)) > 0) {
-                        json = new JSONObject(new String(cBuf, 0, n));
-                        if(!json.has("status") && !json.has("stats")) {
-                            Log.e(TAG, "No status JSON prop");
-                            if(!json.has("error")) {
-                                success = false;
-                                break;
-                            }
-                        }
+                        response.append(cBuf, 0, n);
+                        json = parseOCRResponse(response.toString());
                         publishProgress(1.0);
                     }
                     connIn.close();
@@ -173,6 +168,23 @@ public class ShareService extends IntentService {
             } else {
                 //TODO error message notification
                 Log.e(TAG, "Screenshot processing failed");
+            }
+        }
+
+        private JSONObject parseOCRResponse(String response) {
+            String[] split = response.split("\n\n");
+            String jsonStr = split[split.length - 1];
+            try {
+                if (jsonStr.endsWith("\n")) {
+                    return new JSONObject(jsonStr.trim());
+                } else if (split.length > 1) {
+                    return new JSONObject(split[split.length - 1].trim());
+                } else {
+                    return new JSONObject();
+                }
+            } catch (JSONException e) {
+                Log.e(TAG, e.toString());
+                return new JSONObject();
             }
         }
     }
