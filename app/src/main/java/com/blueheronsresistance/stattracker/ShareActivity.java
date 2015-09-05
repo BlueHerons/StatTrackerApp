@@ -4,9 +4,12 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -85,6 +88,32 @@ public class ShareActivity extends Activity {
             started = true;
             if (imageUri != null) {
                 Log.d(TAG, "Image uri: " + imageUri.getPath());
+
+                //todo move to service for decoding date from filename
+
+                String scheme = imageUri.getScheme();
+                if (scheme.equals("file")) {
+                    Log.d(TAG, "Image file filename: " + imageUri.getLastPathSegment());
+                }
+                else if (scheme.equals("content")) {
+                    Cursor cursor = null;
+                    try {
+                        cursor = getContentResolver().query(imageUri, null, null, null, null);
+                        if (cursor != null && cursor.moveToFirst()) {
+                            int columnIndex = cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME);
+                            Log.d(TAG, "Image content filename: " + cursor.getString(columnIndex));
+                        }
+                    } finally {
+                        if (cursor != null) {
+                            cursor.close();
+                        }
+                    }
+                } else {
+                    //unknown filename
+                }
+
+                //todo end move
+
                 try {
                     getContentResolver().openInputStream(imageUri); // If we can open the image into an InputStream it exists
                     Log.d(TAG, "File exists");
