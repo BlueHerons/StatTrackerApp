@@ -178,7 +178,7 @@ public class ShareService extends IntentService {
                 if (jsonStr.endsWith("\n")) {
                     return new JSONObject(jsonStr.trim());
                 } else if (split.length > 1) {
-                    return new JSONObject(split[split.length - 1].trim());
+                    return new JSONObject(split[split.length - 2].trim());
                 } else {
                     return new JSONObject();
                 }
