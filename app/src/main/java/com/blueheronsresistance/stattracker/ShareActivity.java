@@ -117,8 +117,9 @@ public class ShareActivity extends Activity {
                 try {
                     getContentResolver().openInputStream(imageUri); // If we can open the image into an InputStream it exists
                     Log.d(TAG, "File exists");
-                    Log.d(TAG, "onStart selecting account");
-                    pickAccount();
+                    //Log.d(TAG, "onStart selecting account");
+                    //pickAccount();
+                    // todo check if current token is valid and submit else prompt for token input
                 } catch(FileNotFoundException e) {
                     Log.e(TAG, "File not found: " + e.toString());
                     //TODO error message pop up saying image not found
