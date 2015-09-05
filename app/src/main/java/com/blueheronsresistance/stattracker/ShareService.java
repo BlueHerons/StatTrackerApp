@@ -73,7 +73,7 @@ public class ShareService extends IntentService {
                 conn.setUseCaches(false); // No cached data
                 conn.setFixedLengthStreamingMode(imageSize);  // image size in bytes
                 conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded"); // Upload type for POST just having image data as the payload and nothing else
-                conn.setSSLSocketFactory(pinnedSSLSocketFactory.getSocketFactory(getApplicationContext())); // Setup SSL with our pinned cert
+                //conn.setSSLSocketFactory(pinnedSSLSocketFactory.getSocketFactory(getApplicationContext())); // Setup SSL with our pinned cert
 
                 BufferedInputStream imageIn = new BufferedInputStream(imageFIS);
                 BufferedOutputStream connOut = new BufferedOutputStream(conn.getOutputStream());
