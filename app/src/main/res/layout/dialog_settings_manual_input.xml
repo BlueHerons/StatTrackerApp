@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/settings_manual_input_dialog_name"
+        android:hint="@string/settings_manual_input_dialog_name"
+        android:inputType="textCapCharacters" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/settings_manual_input_dialog_value"
+        android:hint="@string/settings_manual_input_dialog_value"
+        android:inputType="text" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/settings_manual_input_dialog_url"
+        android:hint="@string/settings_manual_input_dialog_url"
+        android:inputType="textUri" />
+</LinearLayout>

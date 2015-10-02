@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/settings_scan_barcode"
+        android:title="@string/settings_scan_barcode"
+        android:icon="@drawable/ic_qrcode"
+        app:showAsAction="ifRoom"/>
+    <item android:id="@+id/settings_manual_input"
+        android:title="@string/settings_manual_input"
+        android:icon="@drawable/ic_input"
+        app:showAsAction="ifRoom"/>
+    <item android:id="@+id/settings_delete_token"
+        android:title="@string/settings_delete_token"/>
+</menu>

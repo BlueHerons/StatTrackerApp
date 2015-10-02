@@ -1,6 +1,32 @@
 <resources>
     <string name="app_name">Stat Tracker</string>
     <string name="app_share_name">Stat Tracker</string>
+    <string name="app_settings_name">ST Settings</string>
+    <string name="app_scheme">stattracker</string>
+    <string name="app_token_host">token</string>
     <string name="ocr_path">api/%s/ocr</string>
     <string name="submit_path">api/%s/submit</string>
+    <string name="token_check_path">api/%s</string>
+    <string name="token_name_tag">"Token Name: "</string>
+    <string name="add_token">Please Add A Token</string>
+    <string name="add_token_desc">- Open Stat Tracker in your browser\n- Go to \"Settings\" under \"Welcome, [Agent Name]\"\n- Click \"Create New Token\"\n— If using a browser not on this device scan the QR code\n— If using a browser on this device, click the QR code link\n— Otherwise use the manual entry option in the action bar</string>
+    <string name="settings_scan_barcode">Scan Token Barcode</string>
+    <string name="settings_bad_scan_barcode_toast">QR Code was not a Stat Tracker token</string>
+    <string name="settings_scan_barcode_message">Scan a Stat Tracker token QR code</string>
+    <string name="settings_manual_input">Manually Input Token</string>
+    <string name="settings_delete_token">Delete Token</string>
+    <string name="settings_unknown_agent_name">**Unknown**</string>
+    <string name="settings_scan_barcode_toast">Starting Barcode Scanner</string>
+    <string name="settings_manual_input_dialog_title">Add A Token</string>
+    <string name="settings_manual_input_dialog_ok">Add Token</string>
+    <string name="settings_manual_input_dialog_cancel">Cancel</string>
+    <string name="settings_manual_input_dialog_name">Token name</string>
+    <string name="settings_manual_input_dialog_value">Token value</string>
+    <string name="settings_manual_input_dialog_url">Stat Tracker instance URL</string>
+    <string name="settings_deleting_token_dialog_title">Saved Token Removed</string>
+    <string name="settings_okay_dialog_reason">"Reason: "</string>
+    <string name="settings_check_token_dialog_title_fail">Checking Token Failed</string>
+    <string name="settings_check_token_dialog_title_success">Checking Token Success</string>
+    <string name="settings_check_token_dialog_success">Token has been successfully added!</string>
+    <string name="okay_dialog_okay">Okay</string>
 </resources>
