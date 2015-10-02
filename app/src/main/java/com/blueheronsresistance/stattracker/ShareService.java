@@ -42,6 +42,8 @@ public class ShareService extends IntentService {
 
     private static String authCode;
 
+    private static String base_url = ""; //todo temp remove
+
     @Override
     protected void onHandleIntent(Intent workIntent) {
         // Gets data from the incoming Intent
@@ -66,7 +68,7 @@ public class ShareService extends IntentService {
                 int imageSize = (int) imageFIS.getChannel().size();
                 Log.d(TAG, "Image size: " + imageSize);
 
-                URL url = new URL(getString(R.string.base_url) + String.format(getString(R.string.ocr_path), authCode)); // Url to upload to with auth code substituted in
+                URL url = new URL(base_url + String.format(getString(R.string.ocr_path), authCode)); // Url to upload to with auth code substituted in
                 HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
                 conn.setDoInput(true); // We want to get the response data back
                 conn.setDoOutput(true); // POST request
@@ -199,7 +201,7 @@ public class ShareService extends IntentService {
         Log.d(TAG, "submitStats stats: " + stats.toString());
 
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
-            (Request.Method.POST, getString(R.string.base_url) + String.format(getString(R.string.submit_path), authCode), null, new Response.Listener<JSONObject>() {
+            (Request.Method.POST, base_url + String.format(getString(R.string.submit_path), authCode), null, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
                     Log.d(TAG, "submitStats finished request");
@@ -245,6 +247,7 @@ public class ShareService extends IntentService {
         };
         Log.d(TAG, "submitStats started request");
         // Access the RequestQueue through your singleton class.
+        jsObjRequest.setShouldCache(false);
         MyVolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsObjRequest);
     }
 

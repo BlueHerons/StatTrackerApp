@@ -1,35 +1,15 @@
 package com.blueheronsresistance.stattracker;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.HttpHeaderParser;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.google.android.gms.auth.GoogleAuthException;
-import com.google.android.gms.auth.GoogleAuthUtil;
-import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
-import com.google.android.gms.auth.UserRecoverableAuthException;
-import com.google.android.gms.common.AccountPicker;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 
 /**
@@ -132,7 +112,7 @@ public class ShareActivity extends Activity {
             }
         }
     }
-
+/*
     @Override
     protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
         if (requestCode == REQUEST_SIGN_IN_REQUIRED) {
@@ -368,5 +348,5 @@ public class ShareActivity extends Activity {
             Log.e(TAG, "sendTokenResponse missing status property in response");
             //TODO error message pop up saying missing status property in response
         }
-    }
+    }*/
 }

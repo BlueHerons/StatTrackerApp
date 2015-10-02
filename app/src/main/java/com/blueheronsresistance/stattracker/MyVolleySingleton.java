@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.Volley;
 
 /**
@@ -32,10 +31,7 @@ public class MyVolleySingleton {
         if (mRequestQueue == null) {
             // getApplicationContext() is key, it keeps you from leaking the
             // Activity or BroadcastReceiver if someone passes one in.
-            //CookieManager manager = new CookieManager();
-            //CookieHandler.setDefault(manager);
             mRequestQueue = Volley.newRequestQueue(mCtx.getApplicationContext());
-            //mRequestQueue = Volley.newRequestQueue(mCtx.getApplicationContext(), new HurlStack(null, pinnedSSLSocketFactory.getSocketFactory(mCtx)));
         }
         return mRequestQueue;
     }
