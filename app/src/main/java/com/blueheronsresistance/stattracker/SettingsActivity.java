@@ -1,13 +1,14 @@
 package com.blueheronsresistance.stattracker;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -23,7 +24,7 @@ import com.google.zxing.integration.android.IntentResult;
  * Show current token name and corresponding agent
  * Allow user to delete or input a new token
  */
-public class SettingsActivity extends AppCompatActivity implements SettingsManualInputDialogFragment.SettingsManualInputDialogListener {
+public class SettingsActivity extends BaseActivity implements SettingsManualInputDialogFragment.SettingsManualInputDialogListener {
     private static final String TAG = "SettingsActivity";
 
     private boolean deleteEnabled = false;
@@ -38,15 +39,13 @@ public class SettingsActivity extends AppCompatActivity implements SettingsManua
 
         if (savedInstanceState == null) {
             Intent intent = getIntent();
-            if (intent.getAction().equals(Intent.ACTION_VIEW) && (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0) { // uri intents will not come from history on the first time
-                Uri data = intent.getData();
-                Log.d(TAG, data.toString());
-                checkAndSaveToken(data.getQueryParameter("name"), data.getQueryParameter("token"), data.getQueryParameter("issuer"));
+            if(checkForStattrackerUri(intent)) {
+                checkTokenFromIntent(intent);
                 return;
             }
         }
 
-        SharedPreferences settings = getPreferences(MODE_PRIVATE);
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         final String tokenName = settings.getString("tokenName", "");
         final String issuerUrl = settings.getString("issuerUrl", "");
         final String token = settings.getString("token", "");
@@ -78,7 +77,7 @@ public class SettingsActivity extends AppCompatActivity implements SettingsManua
                     @Override
                     public void onCheckError(String error) {
                         displayToken(getString(R.string.settings_unknown_agent_name), tokenName, issuerUrl);
-                        okayDialog(getString(R.string.settings_check_token_dialog_title_fail), getString(R.string.settings_okay_dialog_reason) + error, "unknownAgent");
+                        okayDialog(getString(R.string.settings_check_token_fail_dialog_title), getString(R.string.settings_okay_dialog_reason) + error, "unknownAgent");
                     }
                 };
 
@@ -153,7 +152,7 @@ public class SettingsActivity extends AppCompatActivity implements SettingsManua
     }
 
     private void delete_token() {
-        SharedPreferences.Editor editor = getPreferences(MODE_PRIVATE).edit();
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
         editor.remove("tokenName");
         editor.remove("issuerUrl");
         editor.remove("token");
@@ -168,15 +167,16 @@ public class SettingsActivity extends AppCompatActivity implements SettingsManua
 
     @Override
     public void onSettingsManualInputDialogOkClick(String tokenName, String token, String issuerUrl) {
-        setContentView(R.layout.activity_settings_loading);
         checkAndSaveToken(tokenName, token, issuerUrl);
     }
 
     private void checkAndSaveToken(final String tokenName, final String token, final String issuerUrl) {
+        final Context ctx = getApplicationContext();
+        setContentView(R.layout.activity_settings_loading);
         CheckToken check = new CheckToken() {
             @Override
             public void onCheckGood(String agentName) {
-                SharedPreferences.Editor editor = getPreferences(MODE_PRIVATE).edit();
+                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(ctx).edit();
                 editor.putString("tokenName", tokenName);
                 editor.putString("issuerUrl", issuerUrl);
                 editor.putString("token", token);
@@ -184,31 +184,22 @@ public class SettingsActivity extends AppCompatActivity implements SettingsManua
 
                 displayToken(agentName, tokenName, issuerUrl);
 
-                okayDialog(getString(R.string.settings_check_token_dialog_title_success), getString(R.string.settings_check_token_dialog_success), "tokenCheckSuccess");
+                okayDialog(getString(R.string.settings_check_token_success_dialog_title), getString(R.string.settings_check_token_success_dialog), "tokenCheckSuccess");
             }
 
             @Override
             public void onCheckBad(String error) {
-                okayDialog(getString(R.string.settings_check_token_dialog_title_fail), getString(R.string.settings_okay_dialog_reason) + error, "tokenCheckFail");
+                okayDialog(getString(R.string.settings_check_token_fail_dialog_title), getString(R.string.settings_okay_dialog_reason) + error, "tokenCheckFail");
                 recreate();
             }
 
             @Override
             public void onCheckError(String error) {
-                okayDialog(getString(R.string.settings_check_token_dialog_title_fail), getString(R.string.settings_okay_dialog_reason) + error, "tokenCheckError");
+                okayDialog(getString(R.string.settings_check_token_error_dialog_title), getString(R.string.settings_okay_dialog_reason) + error, "tokenCheckError");
                 recreate();
             }
         };
-        check.start(issuerUrl, token, getApplicationContext());
-    }
-
-    private void okayDialog(String title, String message, String dialogId) {
-        DialogFragment newFragment = new OkayDialogFragment();
-        Bundle args = new Bundle();
-        args.putString("title", title);
-        args.putString("message", message);
-        newFragment.setArguments(args);
-        newFragment.show(getSupportFragmentManager(), dialogId);
+        check.start(issuerUrl, token, ctx);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -223,4 +214,16 @@ public class SettingsActivity extends AppCompatActivity implements SettingsManua
             }
         }
     }
+
+    private boolean checkForStattrackerUri(Intent intent) {
+        // uri intents will not come from history on the first time
+        return (Intent.ACTION_VIEW.equals(intent.getAction()) && (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0);
+    }
+
+    private void checkTokenFromIntent(Intent intent) {
+        Uri data = intent.getData();
+        Log.d(TAG, data.toString());
+        checkAndSaveToken(data.getQueryParameter("name"), data.getQueryParameter("token"), data.getQueryParameter("issuer"));
+    }
+
 }
