@@ -29,4 +29,8 @@
     <string name="settings_check_token_dialog_title_success">Checking Token Success</string>
     <string name="settings_check_token_dialog_success">Token has been successfully added!</string>
     <string name="okay_dialog_okay">Okay</string>
+    <string name="check_token_no_agent_name">No agent name found in response from server</string>
+    <string name="check_token_invalid_token">Invalid Token</string>
+    <string name="check_token_token_dne">This Token Does Not Exist</string>
+    <string name="check_token_no_response">No response/server timed out</string>
 </resources>

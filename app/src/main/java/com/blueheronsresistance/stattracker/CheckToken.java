@@ -16,11 +16,15 @@ import org.json.JSONObject;
  * Check if given token is valid against given server
  *  Callback one of three methods depending on success or failure
  */
-public class CheckToken {
+class CheckToken {
     private static final String TAG = "CheckToken";
+
+    private Context _ctx;
 
     public void start(String issuerUrl, String token, Context ctx) {
         Log.d(TAG, "Token: " + token);
+
+        _ctx = ctx;
 
         String url = issuerUrl + String.format(ctx.getString(R.string.token_check_path), token);
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
@@ -40,14 +44,14 @@ public class CheckToken {
         Log.d(TAG, "verifyToken started request");
         // Access the RequestQueue through your singleton class.
         jsObjRequest.setShouldCache(false);
-        MyVolleySingleton.getInstance(ctx).addToRequestQueue(jsObjRequest);
+        MyVolleySingleton.getInstance(_ctx).addToRequestQueue(jsObjRequest);
     }
 
     private void checkTokenResponse(JSONObject response) {
         try {
             onCheckGood(response.getString("name"));
         } catch(JSONException ex) {
-            onCheckError("No agent name found in response from server");
+            onCheckError(_ctx.getString(R.string.check_token_no_agent_name));
         }
     }
 
@@ -55,10 +59,10 @@ public class CheckToken {
         if(error.networkResponse != null) {
             Log.d(TAG, "statusCode: " + Integer.toString(error.networkResponse.statusCode));
             if(error.networkResponse.statusCode == 400) {
-                onCheckBad("Invalid Token");
+                onCheckBad(_ctx.getString(R.string.check_token_invalid_token));
                 return;
             } else if(error.networkResponse.statusCode == 403) {
-                onCheckBad("This Token Does Not Exist");
+                onCheckBad(_ctx.getString(R.string.check_token_token_dne));
                 return;
             }
         }
@@ -67,7 +71,7 @@ public class CheckToken {
             onCheckBad(error.getCause().getMessage());
             return;
         }
-        onCheckError("No response/server timed out");
+        onCheckError(_ctx.getString(R.string.check_token_no_response));
     }
 
     public void onCheckGood(String agentName) {
