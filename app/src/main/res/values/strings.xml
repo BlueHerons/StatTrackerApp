@@ -29,6 +29,15 @@
     <string name="settings_check_token_error_dialog_title">Error Checking Token</string>
     <string name="settings_check_token_success_dialog_title">Checking Token Success</string>
     <string name="settings_check_token_success_dialog">Token has been successfully added!</string>
+    <string name="share_error_dialog_title">Sharing Error</string>
+    <string name="share_image_not_found_error_dialog">Image Not Found</string>
+    <string name="share_error_dialog_no_image">No Image Shared?</string>
+    <string name="share_check_token_fail_dialog_title">Checking Token Failed</string>
+    <string name="share_check_token_error_dialog_title">Error Checking Token</string>
+    <string name="share_token_not_set_dialog_title">No Token Set</string>
+    <string name="share_check_token_fail_dialog">"The currently set token is invalid, please set a new one: "</string>
+    <string name="share_check_token_error_dialog">"An issue occurred while checking if the currently set token is still valid: "</string>
+    <string name="share_token_not_set_dialog">There is currently no token set, please set one.</string>
     <string name="okay_dialog_okay">Okay</string>
     <string name="check_token_no_agent_name">No agent name found in response from server</string>
     <string name="check_token_invalid_token">Invalid Token</string>

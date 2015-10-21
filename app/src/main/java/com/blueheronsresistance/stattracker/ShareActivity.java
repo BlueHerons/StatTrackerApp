@@ -1,352 +1,207 @@
 package com.blueheronsresistance.stattracker;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.OpenableColumns;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 
 
 /**
- * Handle Google login to Stat Tracker with using stored accounts on device through AccountManager
- *  Then start ShareService to process image
+ * Check image exists from intent and that the Stat Tracker token is valid
+ * Then start ShareService to process image
  */
-public class ShareActivity extends Activity {
+public class ShareActivity extends BaseActivity {
     private static final String TAG = "ShareActivity";
-    /* Request code used to invoke sign in user interactions. */
-    private static final int REQUEST_SIGN_IN_REQUIRED = 1001;
-    private static final int REQUEST_CODE_PICK_ACCOUNT = 1000;
 
-    private static final String STATE_INTENT_IN_PROGRESS = "mIntentInProgress";
-    private static final String STATE_ACCOUNT = "account";
-
-    /* True if we are in the process of resolving a ConnectionResult */
-    private boolean mIntentInProgress = false;
-
-    private Uri imageUri;
-
-    private String account;
-
-    private boolean started = false;
-
+    private static final String START_SETTINGS_REQUEST = "startSettings";
+    private static final String FINISH_REQUEST = "finish";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Get the intent that started this activity
-        Intent intent = getIntent();
+        setContentView(R.layout.activity_share);
 
-        imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+        if (savedInstanceState == null) {
+            // Get the intent that started this activity
+            Intent intent = getIntent();
 
-        Log.d(TAG, "Intent type: " + intent.getType());
+            Log.d(TAG, "Intent type: " + intent.getType());
 
-        if(savedInstanceState != null) {
-            mIntentInProgress = savedInstanceState.getBoolean(STATE_INTENT_IN_PROGRESS, false);
-            account = savedInstanceState.getString(STATE_ACCOUNT);
-            started = true;
-        }
-    }
+            Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            String imageName = intent.getStringExtra("imageName");
 
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean(STATE_INTENT_IN_PROGRESS, mIntentInProgress);
-        outState.putString(STATE_ACCOUNT, account);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.d(TAG, "onStart fired");
-        if (!started) {
-            started = true;
             if (imageUri != null) {
                 Log.d(TAG, "Image uri: " + imageUri.getPath());
-
-                //todo move to service for decoding date from filename
-
-                String scheme = imageUri.getScheme();
-                if (scheme.equals("file")) {
-                    Log.d(TAG, "Image file filename: " + imageUri.getLastPathSegment());
-                }
-                else if (scheme.equals("content")) {
-                    Cursor cursor = null;
-                    try {
-                        cursor = getContentResolver().query(imageUri, null, null, null, null);
-                        if (cursor != null && cursor.moveToFirst()) {
-                            int columnIndex = cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME);
-                            Log.d(TAG, "Image content filename: " + cursor.getString(columnIndex));
-                        }
-                    } finally {
-                        if (cursor != null) {
-                            cursor.close();
-                        }
-                    }
-                } else {
-                    //unknown filename
-                }
-
-                //todo end move
 
                 try {
                     getContentResolver().openInputStream(imageUri); // If we can open the image into an InputStream it exists
                     Log.d(TAG, "File exists");
-                    //Log.d(TAG, "onStart selecting account");
-                    //pickAccount();
-                    // todo check if current token is valid and submit else prompt for token input
-                } catch(FileNotFoundException e) {
-                    Log.e(TAG, "File not found: " + e.toString());
-                    //TODO error message pop up saying image not found
-                    finish();
+                } catch (FileNotFoundException ex) {
+                    Log.e(TAG, "File not found: " + ex.toString());
+                    okayDialog(getString(R.string.share_error_dialog_title), getString(R.string.share_image_not_found_error_dialog), "imageNotFound", FINISH_REQUEST);
+                    return;
+                }
+                imageName = imageToTmp(imageUri);
+                if (imageName != null) {
+                    checkTokenUploadImage(imageName);
+                }
+            } else if (imageName != null) {
+                Log.d(TAG, "Image name: " + imageName);
+                File imageFile = new File(new File(getCacheDir(), "tempShare"), imageName);
+                if(imageFile.exists()) {
+                    Log.d(TAG, "File exists");
+                    checkTokenUploadImage(imageName);
+                } else {
+                    Log.e(TAG, "File not found: " + imageFile.getPath());
+                    okayDialog(getString(R.string.share_error_dialog_title), getString(R.string.share_image_not_found_error_dialog), "imageNotFound", FINISH_REQUEST);
                 }
             } else {
                 Log.e(TAG, "No image?");
-                //TODO error message pop up saying no image shared
-                finish();
+                okayDialog(getString(R.string.share_error_dialog_title), getString(R.string.share_error_dialog_no_image), "noImageShared", FINISH_REQUEST);
             }
         }
     }
-/*
+
+    private void checkTokenUploadImage(final String imageName) {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        final String issuerUrl = settings.getString("issuerUrl", "");
+        final String token = settings.getString("token", "");
+        Log.d(TAG, issuerUrl);
+        Log.d(TAG, token);
+        if (issuerUrl.equals("") || token.equals("")) {
+            Log.d(TAG, "No token set");
+            okayDialog(getString(R.string.share_token_not_set_dialog_title), getString(R.string.share_token_not_set_dialog), "noToken", START_SETTINGS_REQUEST, imageName);
+        } else {
+            CheckToken check = new CheckToken() {
+                @Override
+                public void onCheckGood(String agentName) {
+                    Log.d(TAG, "Starting sharing service");
+                    startShareService(imageName, token, issuerUrl);
+                }
+
+                @Override
+                public void onCheckBad(String error) {
+                    Log.d(TAG, "Check token returned bad");
+                    okayDialog(getString(R.string.share_check_token_fail_dialog_title), getString(R.string.share_check_token_fail_dialog) + error, "tokenBad", START_SETTINGS_REQUEST, imageName);
+                }
+
+                @Override
+                public void onCheckError(String error) {
+                    Log.d(TAG, "Check token returned error");
+                    okayDialog(getString(R.string.share_check_token_error_dialog_title), getString(R.string.share_check_token_error_dialog) + error, "unknownAgent", START_SETTINGS_REQUEST, imageName);
+                }
+            };
+            check.start(issuerUrl, token, getApplicationContext());
+        }
+    }
+
+    private void startSettingsActivity(String imageName) {
+        Intent newIntent = new Intent(this, SettingsActivity.class);
+        newIntent.putExtra("imageName", imageName);
+        newIntent.setType(getIntent().getType());
+        startActivity(newIntent);
+        finish();
+    }
+
+    private void startShareService(String imageName, String token, String issuerUrl) {
+        Intent intent = new Intent(this, ShareService.class);
+        intent.putExtra("imageName", imageName);
+        intent.putExtra("token", token);
+        intent.putExtra("issuerUrl", issuerUrl);
+        startService(intent);
+        // todo toast stat upload started
+        finish();
+    }
+
+    public void onOkayDialogCancelOrOkay(String requestCode, String requestData) {
+        Log.d(TAG, "onOkayDialogCancelOrOkay: " + requestCode);
+        switch (requestCode) {
+            case START_SETTINGS_REQUEST:
+                startSettingsActivity(requestData);
+                break;
+            case FINISH_REQUEST:
+                finish();
+                break;
+        }
+    }
+
+    @SuppressWarnings("TryFinallyCanBeTryWithResources")
+    private String imageToTmp(Uri imageUri) {
+        String name = null;
+        String scheme = imageUri.getScheme();
+        switch (scheme) {
+            case "file":
+                Log.d(TAG, "Image file filename: " + imageUri.getLastPathSegment());
+                name = imageUri.getLastPathSegment();
+                break;
+            case "content":
+                Cursor cursor = getContentResolver().query(imageUri, null, null, null, null);
+                if (cursor != null) {
+                    if (cursor.moveToFirst()) {
+                        int iDisplayName = cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME);
+                        name = cursor.getString(iDisplayName);
+                        Log.d(TAG, "Image content filename: " + name);
+                    }
+                    cursor.close();
+                }
+        }
+        if (name == null) {
+            //todo error
+            Log.e(TAG, "name is null");
+            return null;
+        }
+        File dir = new File(getCacheDir(), "tempShare");
+        if (!dir.mkdirs() && !dir.isDirectory()) {
+           //todo error
+            Log.e(TAG, "failed to make tempShare directory");
+            return null;
+        }
+
+        File imageCacheFile = new File(dir, name);
+
+        try {
+            FileChannel imageFIC = ((FileInputStream) getContentResolver().openInputStream(imageUri)).getChannel();
+            try {
+                FileChannel imageFOC = new FileOutputStream(imageCacheFile).getChannel();
+                try {
+                    long bytesTransferred = 0;
+                    while (bytesTransferred < imageFIC.size()) {
+                        bytesTransferred += imageFOC.transferFrom(imageFIC, bytesTransferred, imageFIC.size() - bytesTransferred);
+                    }
+                } finally {
+                    imageFOC.close();
+                }
+            } finally {
+                imageFIC.close();
+            }
+            Log.d(TAG, "Image copied to: " + imageCacheFile.getPath());
+            return name;
+        } catch (FileNotFoundException ex) {
+            Log.e(TAG, ex.getMessage());
+            //todo error
+            return null;
+        } catch (IOException ex) {
+            Log.e(TAG, ex.getMessage());
+            //todo error
+            return null;
+        }
+    }
+
     @Override
-    protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
-        if (requestCode == REQUEST_SIGN_IN_REQUIRED) {
-            if (responseCode == RESULT_OK) {
-                // We had to sign in - now we can finish off the token request.
-                RetrieveToken();
-            } else {
-                // User hit cancel?
-                pickAccount(); // back to pick account, can cancel whole thing out of there
-            }
-        } else if(requestCode == REQUEST_CODE_PICK_ACCOUNT) {
-            mIntentInProgress = false;
-            // Receiving a result from the AccountPicker
-            if (responseCode == RESULT_OK) {
-                account = intent.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-                RetrieveToken();
-            } else if (responseCode == RESULT_CANCELED) {
-                // The account picker dialog closed without selecting an account.
-                // Notify users that they must pick an account to proceed.
-                //To not? do Notify users that they must pick an account to proceed.
-                finish();
-            }
-        }
+    protected void onDestroy() {
+        super.onDestroy();
+        cleanUpTemp();
     }
-
-    private void pickAccount() {
-        String[] accountTypes = new String[]{GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE};
-        Intent intent = AccountPicker.newChooseAccountIntent(null, null,
-                accountTypes, false, null, null, null, null);
-        startActivityForResult(intent, REQUEST_CODE_PICK_ACCOUNT);
-    }
-
-    private void RetrieveToken() {
-        AccountManager accountManager  = AccountManager.get(this);
-        Account[] accounts = accountManager.getAccountsByType(GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
-        if(!account.isEmpty()) {
-            // find matching account
-            for (final Account dAccount : accounts) {
-                if (dAccount.name.equals(account)) {
-                    new RetrieveTokenTask().execute(dAccount);
-                    return;
-                }
-            }
-        }
-        //TODO error message pop up
-        Log.e(TAG, "Error account does not exist, this shouldn't happen!?: " + account);
-    }
-
-    private class RetrieveTokenTask extends AsyncTask<Account, Void, String> {
-
-        @Override
-        protected String doInBackground(Account... params) {
-            Account accountName = params[0];
-            String token = null;
-            try {
-                token = GoogleAuthUtil.getToken(getApplicationContext(), accountName, "oauth2: " + getString(R.string.scope));
-            } catch (IOException e) {
-                //TODO error message pop up
-                Log.e(TAG, e.getMessage());
-            } catch (UserRecoverableAuthException e) {
-                startActivityForResult(e.getIntent(), REQUEST_SIGN_IN_REQUIRED);
-            } catch (GoogleAuthException e) {
-                //TODO error message pop up
-                Log.e(TAG, e.getMessage());
-            }
-            return token;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            if(s != null) { // only send once we have a token and the task hasn't thrown an exception
-                verifyToken(s);
-            }
-        }
-    }
-
-    private void verifyToken(final String token) {
-        Log.d(TAG, "Token: " + token);
-
-        String url = Uri.parse("https://www.googleapis.com/oauth2/v1/tokeninfo").buildUpon()
-                .appendQueryParameter("access_token", token)
-                .build().toString();
-        JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Log.d(TAG, "verifyToken finished request");
-                        verifyTokenResponse(response, token);
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d(TAG, "verifyToken finished request with error");
-                        verifyTokenError(error, token);
-                    }
-                });
-        Log.d(TAG, "verifyToken started request");
-        // Access the RequestQueue through your singleton class.
-        MyVolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsObjRequest);
-    }
-
-    private void verifyTokenResponse(JSONObject response, String token) {
-        if(response.optInt("expires_in") > 30) {
-            Log.d(TAG, "verifyTokenResponse token is good!");
-            sendToken(token);
-        } else {
-            Log.d(TAG, "verifyTokenResponse token needs refreshing");
-            clearToken(token);
-        }
-    }
-
-    private void verifyTokenError(VolleyError error, String token) {
-        if(error.networkResponse.statusCode == 400) { // we expect this if tokeninfo returns an error
-            String jsonString = "";
-            JSONObject response;
-            try {
-                jsonString = new String(error.networkResponse.data, HttpHeaderParser.parseCharset(error.networkResponse.headers));
-                response = new JSONObject(jsonString);
-                if (response.has("error")) {
-                    Log.d(TAG, "verifyToken error: " + response.optString("error"));
-                } else {
-                    Log.d(TAG, "verifyToken unknown error: " + response.toString());
-                }
-            } catch(UnsupportedEncodingException e) { // We will just silently get a new token and try again, this shouldn't normally happen
-                Log.d(TAG, "verifyToken UnsupportedEncodingException: " + e.toString());
-            } catch(JSONException e) { // We will just silently get a new token and try again, we should get JSON back from this endpoint
-                Log.d(TAG, "verifyToken JSONException: " + e.toString() + " | Data: " + jsonString);
-            }
-            clearToken(token);
-        } else {
-            //TODO error message pop up saying request to stat tracker failed (with error code for here and or error.toString()?)
-            Log.e(TAG, "verifyToken error: " + error.toString());
-        }
-    }
-
-    private void clearToken(String token) {
-        new clearTokenTask().execute(token);
-    }
-
-    private class clearTokenTask extends AsyncTask<String, Void, Boolean> {
-
-        @Override
-        protected Boolean doInBackground(String... params) {
-            String token = params[0];
-            Boolean success;
-            try {
-                GoogleAuthUtil.clearToken(getApplicationContext(), token);
-                success = true;
-            } catch (IOException e) {
-                //TODO error message pop up
-                success = false;
-                Log.e(TAG, e.getMessage());
-            } catch (GooglePlayServicesAvailabilityException e) {
-                success = false;
-                startActivityForResult(e.getIntent(), REQUEST_SIGN_IN_REQUIRED);
-            } catch (GoogleAuthException e) {
-                //TODO error message pop up
-                success = false;
-                Log.e(TAG, e.getMessage());
-            }
-            return success;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean success) {
-            super.onPostExecute(success);
-            if(success) { // Only continue if we cleared the token
-                RetrieveToken();
-            }
-        }
-    }
-
-    private void sendToken(String token) {
-        String url = Uri.parse(getString(R.string.base_url) + getString(R.string.token_path)).buildUpon()
-            .appendQueryParameter("token", token)
-            .build().toString();
-
-        Log.d(TAG, "Built Url: " + url);
-
-        JsonObjectRequest jsObjRequest = new JsonObjectRequest
-            (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                Log.d(TAG, "sendToken finished request");
-                sendTokenResponse(response);
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                //TODO error message pop up saying request to stat tracker failed (with error code for here and or error.toString()?)
-                Log.e(TAG, "sendToken error: " + error.toString());
-                }
-            });
-        Log.d(TAG, "sendToken started request");
-        // Access the RequestQueue through your singleton class.
-        MyVolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsObjRequest);
-    }
-
-    private void sendTokenResponse(JSONObject response) {
-        String status;
-        Log.d(TAG, "sendTokenResponse Response: " + response.toString());
-
-        if (response.has("status")) {
-            status = response.optString("status");
-            switch (status) {
-                case "authentication_required":
-                    Log.e(TAG, "sendTokenResponse failed to login");
-                    //TODO error message pop up saying login failed
-                    break;
-                case "okay":
-                    Log.d(TAG, "sendTokenResponse okay");
-                    try {
-                        Intent intent = new Intent(this, ShareService.class);
-                        intent.putExtra(Intent.EXTRA_STREAM, imageUri);
-                        intent.putExtra("authCode", response.getJSONObject("agent").getString("auth_code"));
-                        startService(intent); // todo startForeground ?
-                        finish();
-                    } catch(JSONException e) {
-                        Log.e(TAG, "sendTokenResponse missing agent auth_code: " + e.toString());
-                        //TODO error message pop up saying JSONException error
-                    }
-                    break;
-                case "registration_required":
-                    Log.d(TAG, "sendTokenResponse register");
-                    //TODO error message pop up saying registration required (with details from server?)
-                    break;
-                default:
-                    //TODO error message pop up saying login status response from Stat Tracker unknown: status
-                    break;
-            }
-        } else {
-            Log.e(TAG, "sendTokenResponse missing status property in response");
-            //TODO error message pop up saying missing status property in response
-        }
-    }*/
 }

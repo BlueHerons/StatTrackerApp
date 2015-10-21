@@ -30,6 +30,7 @@ public class SettingsActivity extends BaseActivity implements SettingsManualInpu
     private boolean deleteEnabled = false;
 
     private static final String STATE_AGENT_NAME = "agentName";
+    private static final String START_SHARE_REQUEST = "startShare";
     private String _agentName = null;
 
 
@@ -184,7 +185,7 @@ public class SettingsActivity extends BaseActivity implements SettingsManualInpu
 
                 displayToken(agentName, tokenName, issuerUrl);
 
-                okayDialog(getString(R.string.settings_check_token_success_dialog_title), getString(R.string.settings_check_token_success_dialog), "tokenCheckSuccess");
+                okayDialog(getString(R.string.settings_check_token_success_dialog_title), getString(R.string.settings_check_token_success_dialog), "tokenCheckSuccess", START_SHARE_REQUEST);
             }
 
             @Override
@@ -215,6 +216,35 @@ public class SettingsActivity extends BaseActivity implements SettingsManualInpu
         }
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        String imageName = intent.getStringExtra("imageName");
+        if (imageName != null) {
+            setIntent(intent);
+        } else if(checkForStattrackerUri(intent)) {
+            checkTokenFromIntent(intent);
+        }
+    }
+
+    public void onOkayDialogCancelOrOkay(String requestCode, String requestData) {
+        Log.d(TAG, "onOkayDialogCancelOrOkay: " + requestCode);
+        if (START_SHARE_REQUEST.equals(requestCode)) {
+            startShare();
+        }
+    }
+
+    private void startShare() {
+        Intent intent = getIntent();
+        String imageName = intent.getStringExtra("imageName");
+        if (imageName != null) {
+            Intent newIntent = new Intent(this, ShareActivity.class);
+            newIntent.putExtra("imageName", imageName);
+            newIntent.setType(intent.getType());
+            startActivity(newIntent);
+            finish();
+        }
+    }
+
     private boolean checkForStattrackerUri(Intent intent) {
         // uri intents will not come from history on the first time
         return (Intent.ACTION_VIEW.equals(intent.getAction()) && (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0);
@@ -226,4 +256,9 @@ public class SettingsActivity extends BaseActivity implements SettingsManualInpu
         checkAndSaveToken(data.getQueryParameter("name"), data.getQueryParameter("token"), data.getQueryParameter("issuer"));
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        cleanUpTemp();
+    }
 }

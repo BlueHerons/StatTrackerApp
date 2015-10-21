@@ -11,7 +11,7 @@
         <item name="colorAccent">@color/accent</item>
     </style>
 
-    <style name="Transparent" parent="@android:style/Theme">
+    <style name="Transparent" parent="@style/AppTheme">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowIsFloating">true</item>
