@@ -38,6 +38,7 @@
     <string name="share_check_token_fail_dialog">"The currently set token is invalid, please set a new one: "</string>
     <string name="share_check_token_error_dialog">"An issue occurred while checking if the currently set token is still valid: "</string>
     <string name="share_token_not_set_dialog">There is currently no token set, please set one.</string>
+    <string name="share_stat_upload_started_toast">Upload to Stat Tracker started</string>
     <string name="okay_dialog_okay">Okay</string>
     <string name="check_token_no_agent_name">No agent name found in response from server</string>
     <string name="check_token_invalid_token">Invalid Token</string>

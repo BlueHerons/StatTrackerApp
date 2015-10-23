@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.OpenableColumns;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -121,7 +122,8 @@ public class ShareActivity extends BaseActivity {
         intent.putExtra("token", token);
         intent.putExtra("issuerUrl", issuerUrl);
         startService(intent);
-        // todo toast stat upload started
+        Toast toast = Toast.makeText(getApplicationContext(), R.string.share_stat_upload_started_toast, Toast.LENGTH_SHORT);
+        toast.show();
         finish();
     }
 
