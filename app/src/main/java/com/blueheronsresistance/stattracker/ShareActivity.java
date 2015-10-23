@@ -60,7 +60,7 @@ public class ShareActivity extends BaseActivity {
                 }
             } else if (imageName != null) {
                 Log.d(TAG, "Image name: " + imageName);
-                File imageFile = new File(new File(getCacheDir(), "tempShare"), imageName);
+                File imageFile = new File(new File(getCacheDir(), getString(R.string.temp_share_directory)), imageName);
                 if(imageFile.exists()) {
                     Log.d(TAG, "File exists");
                     checkTokenUploadImage(imageName);
@@ -163,7 +163,7 @@ public class ShareActivity extends BaseActivity {
             Log.d(TAG, "name is null, using unknown.tmp");
             name = "unknown.tmp";
         }
-        File dir = new File(getCacheDir(), "tempShare");
+        File dir = new File(getCacheDir(), getString(R.string.temp_share_directory));
         if (!dir.mkdirs() && !dir.isDirectory()) {
            //todo error
             Log.e(TAG, "failed to make tempShare directory");

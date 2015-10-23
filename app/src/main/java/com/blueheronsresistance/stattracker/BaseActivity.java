@@ -35,7 +35,7 @@ public abstract class BaseActivity extends AppCompatActivity implements OkayDial
 
     protected void cleanUpTemp() {
         Log.d(TAG, "Cleaning tempShare dir");
-        File dir = new File(getCacheDir(), "tempShare");
+        File dir = new File(getCacheDir(), getString(R.string.temp_share_directory));
         if (dir.isDirectory()) {
             Long currentTime = System.currentTimeMillis();
             for (File file : dir.listFiles()) {
