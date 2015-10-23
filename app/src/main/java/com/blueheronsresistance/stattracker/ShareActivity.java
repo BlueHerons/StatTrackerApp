@@ -160,9 +160,8 @@ public class ShareActivity extends BaseActivity {
                 }
         }
         if (name == null) {
-            //todo error
-            Log.e(TAG, "name is null");
-            return null;
+            Log.d(TAG, "name is null, using unknown.tmp");
+            name = "unknown.tmp";
         }
         File dir = new File(getCacheDir(), "tempShare");
         if (!dir.mkdirs() && !dir.isDirectory()) {
