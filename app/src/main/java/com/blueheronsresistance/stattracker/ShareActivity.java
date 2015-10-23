@@ -165,7 +165,7 @@ public class ShareActivity extends BaseActivity {
         }
         File dir = new File(getCacheDir(), getString(R.string.temp_share_directory));
         if (!dir.mkdirs() && !dir.isDirectory()) {
-           //todo error
+            okayDialog(getString(R.string.share_error_temp_image_dialog_title), getString(R.string.share_error_tempShare_dialog), "tempShareCreation", FINISH_REQUEST);
             Log.e(TAG, "failed to make tempShare directory");
             return null;
         }
@@ -191,11 +191,11 @@ public class ShareActivity extends BaseActivity {
             return name;
         } catch (FileNotFoundException ex) {
             Log.e(TAG, ex.getMessage());
-            //todo error
+            okayDialog(getString(R.string.share_error_temp_image_dialog_title), getString(R.string.share_error_temp_FNF_dialog), "tempFNF", FINISH_REQUEST);
             return null;
         } catch (IOException ex) {
             Log.e(TAG, ex.getMessage());
-            //todo error
+            okayDialog(getString(R.string.share_error_temp_image_dialog_title), getString(R.string.share_error_temp_IOE_dialog), "tempIOE", FINISH_REQUEST);
             return null;
         }
     }
