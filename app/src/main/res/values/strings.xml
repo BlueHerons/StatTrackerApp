@@ -6,6 +6,7 @@
     <string name="app_token_host" translatable="false">token</string>
     <string name="ocr_path" translatable="false">api/%1$s/ocr</string>
     <string name="submit_path" translatable="false">api/%1$s/submit</string>
+    <string name="dashboard_path" translatable="false">dashboard</string>
     <string name="token_check_path" translatable="false">api/%1$s</string>
     <string name="temp_share_directory" translatable="false">tempShare</string>
     <string name="intent_extra_image_name" translatable="false">imageName</string>
@@ -50,6 +51,40 @@
     <string name="share_error_tempShare_dialog">Failed to make tempShare directory to copy image to</string>
     <string name="share_error_temp_FNF_dialog">"Failed copying image to tempShare directory, FileNotFoundException: "</string>
     <string name="share_error_temp_IOE_dialog">"Failed copying image to tempShare directory, IOException: "</string>
+    <string name="service_error_upload_image_dne">"Image does not exist: "</string>
+    <string name="service_error_upload_image_size">"Failed getting image size, IOException: "</string>
+    <string name="service_error_upload_url_parse">URL \"%1$s\" could not be parsed: %2$s</string>
+    <string name="service_error_upload_url_connect">Failed opening connection to URL \"%1$s\", IOException: %2$s</string>
+    <string name="service_error_upload_output_stream">"Failed creating output stream, IOException: "</string>
+    <string name="service_error_upload_sending_image">"Failed sending image to server, IOException: "</string>
+    <string name="service_error_upload_reading_image">"Failed reading from image, IOException: "</string>
+    <string name="service_error_upload_response_code_fail">"Failed getting response code from connection, IOException: "</string>
+    <string name="service_error_upload_response_data">"Failed getting response data from connection, IOException: "</string>
+    <string name="service_error_upload_response_code_invalid">"Image upload response code: "</string>
+    <string name="service_error_upload_json_upload_error">An uploadError occurred after processing your screenshot: %1$s.  Please try again or submit your stats manually.</string>
+    <string name="service_error_upload_json_session">"Your screenshot failed to process. Please try again later.  Transaction: "</string>
+    <string name="service_error_upload_json_no_session">"Your screenshot failed to process. Please try again later.  Transaction: unknown!  Known info: "</string>
+    <string name="service_error_submit_date">"Failed to add date to stats: "</string>
+    <string name="service_error_submit_url_parse">URL \"%1$s\" could not be parsed: %2$s</string>
+    <string name="service_error_submit_url_connect">Failed opening connection to URL \"%1$s\", IOException: %2$s</string>
+    <string name="service_error_submit_output_stream">"Failed creating output stream, IOException: "</string>
+    <string name="service_error_submit_encoding">Encoding not supported \"%1$s\": %2$s</string>
+    <string name="service_error_submit_sending_stats">"Failed sending stats to server, IOException: "</string>
+    <string name="service_error_submit_response_code_fail">"Failed getting response code from connection, IOException: "</string>
+    <string name="service_error_submit_response_data">"Failed getting response data from connection, IOException: "</string>
+    <string name="service_error_submit_response_json">"Failed parsing json from response data, IOException: "</string>
+    <string name="service_error_submit_response_code_invalid">"Image upload response code: "</string>
+    <string name="service_error_submit_json_upload_error_message">"uploadError while submitting stats, server said: "</string>
+    <string name="service_error_submit_json_upload_error_no_message">"uploadError while submitting stats.  Known info: "</string>
+    <string name="service_error_submit_json_unknown">"No message received from server.  Unknown response: "</string>
+    <string name="service_error_upload_error_title">Stat Tracker Upload Error</string>
+    <string name="service_error_submit_error_title">Stat Tracker Submit Stats Error</string>
+    <string name="service_success_notification_progress_title">Stat Tracker</string>
+    <string name="service_success_notification_progress_start">Starting</string>
+    <string name="service_success_notification_progress_upload">Image upload progress</string>
+    <string name="service_success_notification_finished_title">Stat Tracker Finished</string>
+    <string name="service_success_notification_finished_ap">%1$s  AP: %2$,d</string>
+    <string name="service_success_upload_ap">Your screenshot has been processed, AP: %1$,d</string>
     <string name="okay_dialog_okay">Okay</string>
     <string name="check_token_no_agent_name">No agent name found in response from server</string>
     <string name="check_token_invalid_token">Invalid Token</string>
