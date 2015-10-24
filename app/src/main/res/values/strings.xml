@@ -4,9 +4,9 @@
     <string name="app_settings_name">ST Settings</string>
     <string name="app_scheme" translatable="false">stattracker</string>
     <string name="app_token_host" translatable="false">token</string>
-    <string name="ocr_path" translatable="false">api/%s/ocr</string>
-    <string name="submit_path" translatable="false">api/%s/submit</string>
-    <string name="token_check_path" translatable="false">api/%s</string>
+    <string name="ocr_path" translatable="false">api/%1$s/ocr</string>
+    <string name="submit_path" translatable="false">api/%1$s/submit</string>
+    <string name="token_check_path" translatable="false">api/%1$s</string>
     <string name="temp_share_directory" translatable="false">tempShare</string>
     <string name="intent_extra_image_name" translatable="false">imageName</string>
     <string name="intent_extra_token" translatable="false">token</string>
