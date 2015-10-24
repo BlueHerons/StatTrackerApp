@@ -41,7 +41,7 @@ public class ShareActivity extends BaseActivity {
             Log.d(TAG, "Intent type: " + intent.getType());
 
             Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-            String imageName = intent.getStringExtra("imageName");
+            String imageName = intent.getStringExtra(getString(R.string.intent_extra_image_name));
 
             if (imageUri != null) {
                 Log.d(TAG, "Image uri: " + imageUri.getPath());
@@ -77,8 +77,8 @@ public class ShareActivity extends BaseActivity {
 
     private void checkTokenUploadImage(final String imageName) {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        final String issuerUrl = settings.getString("issuerUrl", "");
-        final String token = settings.getString("token", "");
+        final String issuerUrl = settings.getString(getString(R.string.preferences_issuer_url), "");
+        final String token = settings.getString(getString(R.string.preferences_token), "");
         Log.d(TAG, issuerUrl);
         Log.d(TAG, token);
         if (issuerUrl.equals("") || token.equals("")) {
@@ -110,7 +110,7 @@ public class ShareActivity extends BaseActivity {
 
     private void startSettingsActivity(String imageName) {
         Intent newIntent = new Intent(this, SettingsActivity.class);
-        newIntent.putExtra("imageName", imageName);
+        newIntent.putExtra(getString(R.string.intent_extra_image_name), imageName);
         newIntent.setType(getIntent().getType());
         startActivity(newIntent);
         finish();
@@ -118,9 +118,9 @@ public class ShareActivity extends BaseActivity {
 
     private void startShareService(String imageName, String token, String issuerUrl) {
         Intent intent = new Intent(this, ShareService.class);
-        intent.putExtra("imageName", imageName);
-        intent.putExtra("token", token);
-        intent.putExtra("issuerUrl", issuerUrl);
+        intent.putExtra(getString(R.string.intent_extra_image_name), imageName);
+        intent.putExtra(getString(R.string.intent_extra_token), token);
+        intent.putExtra(getString(R.string.intent_extra_issuer_url), issuerUrl);
         startService(intent);
         Toast toast = Toast.makeText(getApplicationContext(), R.string.share_stat_upload_started_toast, Toast.LENGTH_SHORT);
         toast.show();

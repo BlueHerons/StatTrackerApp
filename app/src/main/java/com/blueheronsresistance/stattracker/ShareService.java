@@ -43,11 +43,11 @@ public class ShareService extends IntentService {
     @Override
     protected void onHandleIntent(Intent workIntent) {
         // Gets data from the incoming Intent
-        String imageName = workIntent.getStringExtra("imageName");
+        String imageName = workIntent.getStringExtra(getString(R.string.intent_extra_image_name));
         File imageFile = new File(new File(getCacheDir(), getString(R.string.temp_share_directory)), imageName);
 
-        String token = workIntent.getStringExtra("token");
-        String issuerUrl = workIntent.getStringExtra("issuerUrl");
+        String token = workIntent.getStringExtra(getString(R.string.intent_extra_token));
+        String issuerUrl = workIntent.getStringExtra(getString(R.string.intent_extra_issuer_url));
 
         String uploadUrl = issuerUrl + getString(R.string.ocr_path, token);
 

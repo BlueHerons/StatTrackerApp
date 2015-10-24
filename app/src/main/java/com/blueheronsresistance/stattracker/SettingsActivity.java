@@ -47,9 +47,9 @@ public class SettingsActivity extends BaseActivity implements SettingsManualInpu
         }
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        final String tokenName = settings.getString("tokenName", "");
-        final String issuerUrl = settings.getString("issuerUrl", "");
-        final String token = settings.getString("token", "");
+        final String tokenName = settings.getString(getString(R.string.preferences_token_name), "");
+        final String issuerUrl = settings.getString(getString(R.string.preferences_issuer_url), "");
+        final String token = settings.getString(getString(R.string.preferences_token), "");
 
         if (tokenName.equals("") || issuerUrl.equals("") || token.equals("")) {
             setContentView(R.layout.activity_settings_add_token);
@@ -154,9 +154,9 @@ public class SettingsActivity extends BaseActivity implements SettingsManualInpu
 
     private void delete_token() {
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-        editor.remove("tokenName");
-        editor.remove("issuerUrl");
-        editor.remove("token");
+        editor.remove(getString(R.string.preferences_token_name));
+        editor.remove(getString(R.string.preferences_issuer_url));
+        editor.remove(getString(R.string.preferences_token));
         editor.apply();
         setContentView(R.layout.activity_settings_add_token);
 
@@ -178,9 +178,9 @@ public class SettingsActivity extends BaseActivity implements SettingsManualInpu
             @Override
             public void onCheckGood(String agentName) {
                 SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(ctx).edit();
-                editor.putString("tokenName", tokenName);
-                editor.putString("issuerUrl", issuerUrl);
-                editor.putString("token", token);
+                editor.putString(getString(R.string.preferences_token_name), tokenName);
+                editor.putString(getString(R.string.preferences_issuer_url), issuerUrl);
+                editor.putString(getString(R.string.preferences_token), token);
                 editor.apply();
 
                 displayToken(agentName, tokenName, issuerUrl);
@@ -218,7 +218,7 @@ public class SettingsActivity extends BaseActivity implements SettingsManualInpu
 
     @Override
     protected void onNewIntent(Intent intent) {
-        String imageName = intent.getStringExtra("imageName");
+        String imageName = intent.getStringExtra(getString(R.string.intent_extra_image_name));
         if (imageName != null) {
             setIntent(intent);
         } else if(checkForStattrackerUri(intent)) {
@@ -235,10 +235,10 @@ public class SettingsActivity extends BaseActivity implements SettingsManualInpu
 
     private void startShare() {
         Intent intent = getIntent();
-        String imageName = intent.getStringExtra("imageName");
+        String imageName = intent.getStringExtra(getString(R.string.intent_extra_image_name));
         if (imageName != null) {
             Intent newIntent = new Intent(this, ShareActivity.class);
-            newIntent.putExtra("imageName", imageName);
+            newIntent.putExtra(getString(R.string.intent_extra_image_name), imageName);
             newIntent.setType(intent.getType());
             startActivity(newIntent);
             finish();

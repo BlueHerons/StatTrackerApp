@@ -8,6 +8,12 @@
     <string name="submit_path" translatable="false">api/%s/submit</string>
     <string name="token_check_path" translatable="false">api/%s</string>
     <string name="temp_share_directory" translatable="false">tempShare</string>
+    <string name="intent_extra_image_name" translatable="false">imageName</string>
+    <string name="intent_extra_token" translatable="false">token</string>
+    <string name="intent_extra_issuer_url" translatable="false">issuerUrl</string>
+    <string name="preferences_token_name" translatable="false">tokenName</string>
+    <string name="preferences_issuer_url" translatable="false">issuerUrl</string>
+    <string name="preferences_token" translatable="false">token</string>
     <string name="token_name_tag">"Token Name: "</string>
     <string name="add_token">Please Add A Token</string>
     <string name="add_token_desc">- Open Stat Tracker in your browser\n- Go to \"Settings\" under \"Welcome, [Agent Name]\"\n- Click \"Create New Token\"\n— If using a browser not on this device scan the QR code\n— If using a browser on this device, click the QR code link\n— Otherwise use the manual entry option in the action bar</string>
