@@ -26,7 +26,7 @@ class CheckToken {
 
         _ctx = ctx;
 
-        String url = issuerUrl + String.format(ctx.getString(R.string.token_check_path), token);
+        String url = issuerUrl + ctx.getString(R.string.token_check_path, token);
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                     @Override

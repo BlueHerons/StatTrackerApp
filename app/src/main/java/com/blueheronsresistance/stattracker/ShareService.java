@@ -49,13 +49,13 @@ public class ShareService extends IntentService {
         String token = workIntent.getStringExtra("token");
         String issuerUrl = workIntent.getStringExtra("issuerUrl");
 
-        String uploadUrl = issuerUrl + String.format(getString(R.string.ocr_path), token);
+        String uploadUrl = issuerUrl + getString(R.string.ocr_path, token);
 
         JSONObject json = uploadImage(uploadUrl, imageFile);
 
         JSONObject stats = checkJson(json);
         if (stats != null) {
-            String submitUrl = issuerUrl + String.format(getString(R.string.submit_path), token);
+            String submitUrl = issuerUrl + getString(R.string.submit_path, token);
             JSONObject submitStatsResponse = submitStats(submitUrl, stats);
             if (submitStatsResponse != null) {
                 submitStatsResponse(submitStatsResponse);
