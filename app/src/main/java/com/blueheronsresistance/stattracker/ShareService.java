@@ -32,6 +32,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Service used for uploading image to the Stat Tracker and submitting stats
@@ -71,7 +73,8 @@ public class ShareService extends IntentService {
             JSONObject stats = checkJson(json);
             if (stats != null) {
                 String submitUrl = issuerUrl + getString(R.string.submit_path, token);
-                JSONObject submitStatsResponse = submitStats(submitUrl, stats);
+                String date = getDateFromFileName(imageFile.getName());
+                JSONObject submitStatsResponse = submitStats(submitUrl, stats, date);
                 if (submitStatsResponse != null) {
                     String response = submitStatsResponse(submitStatsResponse);
                     if (response != null) {
@@ -303,11 +306,26 @@ public class ShareService extends IntentService {
         return null;
     }
 
-    private JSONObject submitStats(String submitUrl, JSONObject stats) {
+    private String getDateFromFileName(String fileName) {
+        String date;
+        Matcher regex = Pattern.compile("^profile_(\\d{4})(\\d{2})(\\d{2})_\\d{6}_\\d+(?:\\.\\S+)?$").matcher(fileName);
+        if (regex.matches()) {
+            Log.d(TAG, "Found date in filename");
+            date = String.format("%s-%s-%s", regex.group(1), regex.group(2), regex.group(3));
+        } else {
+            Log.d(TAG, "Using current date");
+            date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+        }
+        Log.d(TAG, date);
+        return date;
+    }
+
+    private JSONObject submitStats(String submitUrl, JSONObject stats, String date) {
         try {
-            stats.put("date", new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date())); //TODO handle other dates from image filename
+            stats.put("date", date);
         } catch (JSONException e) {
             submitError(getString(R.string.service_error_submit_date) + e.toString());
+            return null;
         }
         Log.d(TAG, "submitStats stats: " + stats.toString());
 
