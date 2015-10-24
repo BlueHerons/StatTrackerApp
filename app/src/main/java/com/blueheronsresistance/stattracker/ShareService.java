@@ -55,7 +55,7 @@ public class ShareService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent workIntent) {
-        NotificationCompat.Builder mBuilder = getNotificationBuilder(getString(R.string.service_success_notification_progress_title), getString(R.string.service_success_notification_progress_start))
+        NotificationCompat.Builder mBuilder = getNotificationBuilder(getString(R.string.service_progress_notification_title), getString(R.string.service_progress_notification_start))
                 .setCategory(NotificationCompat.CATEGORY_PROGRESS);
         startForeground(NOTIFY_PROGRESS_ID, mBuilder.build());
 
@@ -95,6 +95,8 @@ public class ShareService extends IntentService {
     }
 
     private JSONObject uploadImage(String uploadUrl, File imageFile) {
+        NotificationCompat.Builder mBuilder;
+
         FileInputStream imageFIS;
         try {
             imageFIS = new FileInputStream(imageFile);
@@ -151,8 +153,10 @@ public class ShareService extends IntentService {
 
         byte[] buf = new byte[BUF_SIZE]; // size of BufferedInput/OutputStream
         int n; // number of bytes read
+        mBuilder = getNotificationBuilder(getString(R.string.service_progress_notification_title), getString(R.string.service_progress_notification_upload))
+                .setCategory(NotificationCompat.CATEGORY_PROGRESS);
         // Starting image upload
-        uploadProgress(imageSize, 0);
+        uploadProgress(imageSize, 0, mBuilder);
         try {
             int totalUploaded = 0; // total bytes uploaded, used for calculating our percentage
             while ((n = imageIn.read(buf, 0, BUF_SIZE)) > 0) {
@@ -166,7 +170,7 @@ public class ShareService extends IntentService {
                     conn.disconnect();
                     return null;
                 }
-                uploadProgress(imageSize, totalUploaded);
+                uploadProgress(imageSize, totalUploaded, mBuilder);
             }
         } catch (IOException ex) {
             uploadError(getString(R.string.service_error_upload_reading_image) + ex.getMessage());
@@ -194,11 +198,14 @@ public class ShareService extends IntentService {
 
                 StringBuilder response = new StringBuilder();
                 JSONObject json = null;
+                mBuilder = getNotificationBuilder(getString(R.string.service_progress_notification_title), "")
+                        .setCategory(NotificationCompat.CATEGORY_PROGRESS)
+                        .setProgress(0, 0, true);
                 char[] cBuf = new char[BUF_SIZE]; // size of InputStreamReader buffer
                 while ((n = connIn.read(cBuf, 0, BUF_SIZE)) > 0) {
                     response.append(cBuf, 0, n);
                     json = parseOCRResponse(response.toString());
-                    ocrProgress(json);
+                    ocrProgress(json, mBuilder);
                 }
                 return json;
             } catch (IOException ex) {
@@ -249,21 +256,21 @@ public class ShareService extends IntentService {
         errorNotification(getString(R.string.service_error_upload_error_title), error);
     }
 
-    private void uploadProgress(int max, int progress) {
+    private void uploadProgress(int max, int progress, NotificationCompat.Builder mBuilder) {
         Log.d(TAG, String.format("Image upload progress: %.2f%%", ((double) progress/max) * 100));
-        NotificationCompat.Builder mBuilder = getNotificationBuilder(getString(R.string.service_success_notification_progress_title), getString(R.string.service_success_notification_progress_upload))
-                .setCategory(NotificationCompat.CATEGORY_PROGRESS)
-                .setProgress(max, progress, false);
-        startForeground(NOTIFY_PROGRESS_ID, mBuilder.build());
+        mBuilder = mBuilder.setProgress(max, progress, false);
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        mNotificationManager.notify(NOTIFY_PROGRESS_ID, mBuilder.build());
     }
 
-    private void ocrProgress(JSONObject json) {
+    private void ocrProgress(JSONObject json, NotificationCompat.Builder mBuilder) {
         if (json.has("status")) {
             Log.d(TAG, json.optString("status"));
-            NotificationCompat.Builder mBuilder = getNotificationBuilder(getString(R.string.service_success_notification_progress_title), json.optString("status"))
-                    .setCategory(NotificationCompat.CATEGORY_PROGRESS)
-                    .setProgress(0, 0, true);
-            startForeground(NOTIFY_PROGRESS_ID, mBuilder.build());
+            mBuilder = mBuilder.setContentText(json.optString("status"));
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            mNotificationManager.notify(NOTIFY_PROGRESS_ID, mBuilder.build());
         }
     }
 
@@ -290,9 +297,11 @@ public class ShareService extends IntentService {
         if ((stats = json.optJSONObject("stats")) != null) {
             Log.d(TAG, "Your screenshot has been processed, AP: " + stats.optInt("ap"));
             Log.d(TAG, stats.toString());
-            NotificationCompat.Builder mBuilder = getNotificationBuilder(getString(R.string.service_success_notification_progress_title), getString(R.string.service_success_upload_ap, stats.optInt("ap")))
+            NotificationCompat.Builder mBuilder = getNotificationBuilder(getString(R.string.service_progress_notification_title), getString(R.string.service_success_upload_ap, stats.optInt("ap")))
                     .setCategory(NotificationCompat.CATEGORY_PROGRESS);
-            startForeground(NOTIFY_PROGRESS_ID, mBuilder.build());
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            mNotificationManager.notify(NOTIFY_PROGRESS_ID, mBuilder.build());
             return stats;
         } else if (json.has("uploadError")) {
             uploadError(getString(R.string.service_error_upload_json_upload_error, json.optString("uploadError")));

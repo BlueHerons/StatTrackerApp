@@ -79,9 +79,9 @@
     <string name="service_error_submit_json_unknown">"No message received from server.  Unknown response: "</string>
     <string name="service_error_upload_error_title">Stat Tracker Upload Error</string>
     <string name="service_error_submit_error_title">Stat Tracker Submit Stats Error</string>
-    <string name="service_success_notification_progress_title">Stat Tracker</string>
-    <string name="service_success_notification_progress_start">Starting</string>
-    <string name="service_success_notification_progress_upload">Image upload progress</string>
+    <string name="service_progress_notification_title">Stat Tracker</string>
+    <string name="service_progress_notification_start">Starting</string>
+    <string name="service_progress_notification_upload">Image upload progress</string>
     <string name="service_success_notification_finished_title">Stat Tracker Finished</string>
     <string name="service_success_notification_finished_ap">%1$s  AP: %2$,d</string>
     <string name="service_success_upload_ap">Your screenshot has been processed, AP: %1$,d</string>
