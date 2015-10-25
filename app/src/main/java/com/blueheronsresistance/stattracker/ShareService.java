@@ -459,7 +459,8 @@ public class ShareService extends IntentService {
         NotificationCompat.Builder mBuilder = getNotificationBuilder(title, text)
                 .setAutoCancel(true)
                 .setContentIntent(PendingIntent.getActivity(this, 0, new Intent(), 0))
-                .setCategory(NotificationCompat.CATEGORY_ERROR);
+                .setCategory(NotificationCompat.CATEGORY_ERROR)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(text));
 
         mNotificationManager.notify(NOTIFY_UPLOAD_ERROR_ID, mBuilder.build());
     }
